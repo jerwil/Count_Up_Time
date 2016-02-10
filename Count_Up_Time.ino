@@ -145,6 +145,12 @@ void loop () {
       printstring(String(MonthsSince),0);
       printstring("Months",1);
   }
+//  else if (mode == 5){
+//    String stringOne =  String(now.hour(), DEC) + ':' + String(now.minute(), DEC) + ':' + String(now.second(), DEC);
+//    printstring(stringOne,0);
+////    printstring("The time",1);
+//  }
+  
   else {printstring("Error!",0);  
   }
     
