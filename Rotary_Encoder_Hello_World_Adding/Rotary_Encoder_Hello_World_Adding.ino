@@ -1,3 +1,5 @@
+#include <RTClib.h>
+
 /*
   Blink
   Turns on an LED on for one second, then off for one second, repeatedly.
@@ -6,12 +8,13 @@
  */
 
 #include <Wire.h>
-#include "RTClib.h"
 #include <LiquidCrystal_I2C.h>
+
+
 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
-RTC_DS1307 rtc;
+RTC_DS1307 RTC;
  
 // Pin 13 has an LED connected on most Arduino boards.
 // give it a name:
@@ -22,6 +25,7 @@ const int pin_A = 6;  // pin 12
 const int pin_B = 7;  // pin 11
 const int LED_Pin = 3;
 const int ButtonPin = 8;
+int MonthDayCounts[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
 
 unsigned char encoder_A;
 unsigned char encoder_B;
@@ -50,7 +54,18 @@ void setup() {
 #else
   Wire1.begin(); // Shield I2C pins connect to alt I2C bus on Arduino Due
 #endif
-  rtc.begin();
+  RTC.begin();
+
+    if (! RTC.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    //RTC.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
+
+RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
                
   pinMode(pin_A, INPUT);
   pinMode(pin_B, INPUT);
@@ -60,6 +75,7 @@ void setup() {
   lcd.init();
   lcd.backlight();    
 }
+
 
 // the loop routine runs over and over again forever:
 void loop() {
@@ -98,14 +114,25 @@ else {lcd.noBacklight();}
 if (mode < 0){mode = 5;}
 else if (mode > 5){mode = 0;}
 
-    DateTime now = rtc.now();
+    DateTime now = RTC.now();
     DateTime aniv = (1422126000);
+
+    if (now.year() % 4 == 0){MonthDayCounts[1] = 29;}
+    else {MonthDayCounts[1] = 28;}
 
     long SecondsSince = now.unixtime() - aniv.unixtime();
     long MinutesSince = SecondsSince/60;
     long HoursSince = MinutesSince/60;
     long DaysSince = HoursSince/24;
-    long MonthsSince = (now.year()-aniv.year())*12+(now.month()-aniv.month());
+    long DaysOfMonthSince = MonthDayCounts[now.month()-2]- aniv.day() + now.day();
+    long MonthsSince = (now.year()-aniv.year())*12+(now.month()-aniv.month()-1);
+    if (now.day() >= aniv.day()){
+    MonthsSince += 1;
+    DaysOfMonthSince = now.day()- aniv.day();
+    }
+  
+    
+    
   if (mode == 0){
       printstring1(String(SecondsSince));
       printstring2("Seconds");
@@ -123,8 +150,8 @@ else if (mode > 5){mode = 0;}
       printstring2("Days");
   }
   else if (mode == 4){
-      printstring1(String(MonthsSince));
-      printstring2("Months");
+      printstring1(String(MonthsSince) + " Months");
+      printstring2(String(DaysOfMonthSince) + " Days");
   }
   else if (mode == 5){
     String stringOne =  String(now.hour(), DEC) + ':' + String(now.minute(), DEC) + ':' + String(now.second(), DEC);
