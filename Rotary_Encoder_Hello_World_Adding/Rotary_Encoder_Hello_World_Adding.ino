@@ -85,14 +85,14 @@ void loop() {
       // A has gone from high to low 
       if(encoder_B) {
         Serial.println("Clockwise");
-        lcd.clear();
+        //lcd.clear();
         mode += 1; 
         // B is high so clockwise
         // increase the brightness, dont go over 255          
       }   
       else {
         Serial.println("Counter Clockwise");
-        lcd.clear();
+        //lcd.clear();
         mode -= 1; 
         // B is low so counter-clockwise      
         // decrease the brightness, dont go below 0           
@@ -167,10 +167,12 @@ analogWrite(LED_Pin, brightness*25);
 
 void printstring1(String stringtoprint) {
   if (LastString1 != stringtoprint){
-  int stringlength = stringtoprint.length();
+  String stringgoingtoprint = stringtoprint;
   // Add a while loop to add spaces to the end
+  while(stringgoingtoprint.length() < 16){stringgoingtoprint += " ";}
+  int stringlength = stringgoingtoprint.length();
   char StringChar[stringlength + 1]; 
-  stringtoprint.toCharArray(StringChar, stringlength + 1);
+  stringgoingtoprint.toCharArray(StringChar, stringlength + 1);
   for (int i = 0; i < stringlength; i++){
   lcd.setCursor(i, 0);
   lcd.print(StringChar[i]);
@@ -181,9 +183,11 @@ void printstring1(String stringtoprint) {
 
 void printstring2(String stringtoprint) {
   if (LastString2 != stringtoprint){
-  int stringlength = stringtoprint.length();
+  String stringgoingtoprint = stringtoprint;
+  while(stringgoingtoprint.length() < 16){stringgoingtoprint += " ";}
+  int stringlength = stringgoingtoprint.length();
   char StringChar[stringlength + 1]; 
-  stringtoprint.toCharArray(StringChar, stringlength + 1);
+ stringgoingtoprint.toCharArray(StringChar, stringlength + 1);
   for (int i = 0; i < stringlength; i++){
   lcd.setCursor(i, 1);
   lcd.print(StringChar[i]);
