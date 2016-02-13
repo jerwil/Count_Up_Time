@@ -43,6 +43,7 @@ int clockwise = 0;
 int counterclockwise = 0;
 
 double mode = 0;
+char* sub_mode = "hour set";
 
 // Variables to keep track of last string printed to ensure screen is only changed when input changes
 String LastString1;
@@ -61,6 +62,9 @@ boolean button_hi = false;
 // Boolean for the backlight LED status
 bool LCDon = true;
 
+//Boolean for cursor status
+bool cursoron = false;
+
 // Variables for displaying time
 int hour_int = 0;
 int minute_int = 0;
@@ -69,6 +73,7 @@ int month_int = 0;
 int day_int = 0;
 int year_int = 0;
 int digit_array[8] = {0,0,0,0,0,0,0,0};
+int time_array[3] = {0,0,0};
 
 // Tick timer veriables
 double second_timer[1] = {0}; // This is used to keep track of the timer used to tick for each second
@@ -108,6 +113,7 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
+    clockwise = 0;
     encoder_A = digitalRead(pin_A);    // Read encoder pins
     encoder_B = digitalRead(pin_B);   
     if((!encoder_A) && (encoder_A_prev)){
@@ -116,13 +122,15 @@ void loop() {
         Serial.println("Clockwise");
         if (mode != 5.5 && mode != 6.5){mode += 1;}
         // B is high so clockwise
-        // increase the brightness, dont go over 255          
+        clockwise = 1;
+        timeout = 0;            
       }   
       else {
         Serial.println("Counter Clockwise");
         if (mode != 5.5 && mode != 6.5){mode -= 1;} 
         // B is low so counter-clockwise      
-        // decrease the brightness, dont go below 0           
+        clockwise = -1;
+        timeout = 0;              
       }   
 }
 encoder_A_prev = encoder_A;
@@ -199,7 +207,8 @@ second_int = now.second();
         mode = 5.5;
         button_counter = 0;
         button_pushed = 0;
-        timeout = 0; 
+        timeout = 0;
+        sub_mode = "hour set"; 
         }
       button_counter += 1;
       }
@@ -214,16 +223,9 @@ second_int = now.second();
     printstring2("The time");
   }
   else if (mode == 5.5){
-    time_to_array(hour_int, minute_int, second_int);
+    lcd.cursor();    
     if (tick(1000, second_timer) == 1){  
       if (button_hi == true){ // This code checks to see if the button has been held down long enough to set alarm
-        if (button_counter >= 2) {
-        mode = 5;
-        button_counter = 0;
-        button_pushed = 0;
-        timeout = 0;
-        button_press_initiate[0] = 0; 
-        }
       button_counter += 1;
       }
       else {
@@ -234,9 +236,50 @@ second_int = now.second();
     if (timeout >= 60){
       mode = 5;
       timeout = 0;
+      lcd.noCursor();
+    }
+    if (sub_mode == "hour set"){
+    lcd.setCursor(1,0);
+    if (clockwise == 1 && time_array[0] < 24){
+      time_array[0] += 1;
+      }
+    else if (clockwise == -1 && time_array[0] > 0){
+      time_array[0] -= 1;
+    }
+    if (button_counter >= 2) {
+      sub_mode = "minute set";
+      button_counter = 0;
+      button_pushed = 0;
+      timeout = 0;
+      button_press_initiate[0] = 0; 
+    }    
+    }
+    else if (sub_mode == "minute set"){
+    lcd.setCursor(4,0);
+    if (clockwise == 1 && time_array[1] < 59){
+      time_array[1] += 1;
+      }
+    else if (clockwise == -1 && time_array[1] > 0){
+      time_array[1] -= 1;
+    }
+    if (button_counter >= 2) {
+      mode = 5;
+      sub_mode = "hour set";
+      button_counter = 0;
+      button_pushed = 0;
+      timeout = 0;
+      button_press_initiate[0] = 0;
+      lcd.noCursor();
+      RTC.adjust(DateTime(now.year(), now.month(), now.day(), time_array[0], time_array[1], now.second())); 
+    }    
+    }
+    else{
+    mode = 5;
+    sub_mode = "hour set";
     }
  
-
+    time_to_array(time_array[0], time_array[1], time_array[2]);
+    
     String stringOne =  String(digit_array[0]) + String(digit_array[1]) + ':' + String(digit_array[2]) + String(digit_array[3]) + ':' + String(digit_array[4] + String(digit_array[5]));
     printstring1(stringOne);
     printstring2("Time Set");
@@ -249,7 +292,9 @@ second_int = now.second();
         mode = 6.5;
         button_counter = 0;
         button_pushed = 0;
-        timeout = 0; 
+        timeout = 0;
+        sub_mode = "month set";
+        date_to_array(now.month(), now.day(), now.year()); 
         }
       button_counter += 1;
       }
@@ -262,6 +307,7 @@ second_int = now.second();
     printstring2("The Date");
   }
   else if (mode == 6.5){
+    lcd.cursor();
     if (tick(1000, second_timer) == 1){  
       if (button_hi == true){ // This code checks to see if the button has been held down long enough to set alarm
         if (button_counter >= 3) {
@@ -282,8 +328,60 @@ second_int = now.second();
       mode = 6;
       timeout = 0;
     }
-    printstring1("Date Set");
-    printstring2("  Mode  ");
+    if (sub_mode == "month set"){
+    lcd.setCursor(1,0);
+    if (clockwise == 1 && time_array[0] < 12){
+      time_array[0] += 1;
+      }
+    else if (clockwise == -1 && time_array[0] > 0){
+      time_array[0] -= 1;
+    }
+    if (button_counter >= 2) {
+      sub_mode = "day set";
+      button_counter = 0;
+      button_pushed = 0;
+      timeout = 0;
+      button_press_initiate[0] = 0; 
+    }    
+    }
+    else if (sub_mode == "day set"){
+      lcd.setCursor(4,0);
+      if (clockwise == 1 && time_array[1] < 31){ // Replace with logic that checks months array
+        time_array[0] += 1;
+        }
+      else if (clockwise == -1 && time_array[1] > 0){
+        time_array[0] -= 1;
+      }
+      if (button_counter >= 2) {
+        sub_mode = "year set";
+        button_counter = 0;
+        button_pushed = 0;
+        timeout = 0;
+        button_press_initiate[0] = 0; 
+      }    
+    }
+    else if (sub_mode == "year set"){
+    lcd.setCursor(9,0);
+    if (clockwise == 1){
+      time_array[2] += 1;
+      }
+    else if (clockwise == -1 && time_array[2] > 0){
+      time_array[2] -= 1;
+    }
+    if (button_counter >= 2) {
+      mode = 5;
+      sub_mode = "hour set";
+      button_counter = 0;
+      button_pushed = 0;
+      timeout = 0;
+      button_press_initiate[0] = 0;
+      lcd.noCursor();
+  //    RTC.adjust(DateTime(now.year(), now.month(), now.day(), time_array[0], time_array[1], now.second())); 
+    }    
+    }
+    date_to_array(time_array[0], time_array[1], time_array[2]);
+    printstring1(String(digit_array[0]) + String(digit_array[1]) + '/' + String(digit_array[2]) + String(digit_array[3]) + '/' + String(time_array[2]));
+    printstring2("Set Date");
     LCDon = true;
   }  
   else {
@@ -342,7 +440,10 @@ return button_press_complete[0];
 }
 
 void time_to_array(int hour_int, int minute_int, int second_int){
-
+   time_array[0] = hour_int;
+   time_array[1] = minute_int;
+   time_array[2] = second_int;
+   
      if (hour_int < 10 && hour_int > 0){
     digit_array[0] = 0; // 10 will be the designation for not displaying anything
     digit_array[1] = hour_int;
@@ -366,6 +467,29 @@ void time_to_array(int hour_int, int minute_int, int second_int){
   else {
     digit_array[4] = second_int/10;
     digit_array[5] = second_int%10;
+  }
+}
+
+void date_to_array(int month_int, int day_int, int year_int){
+   time_array[0] = month_int;
+   time_array[1] = day_int;
+   time_array[2] = year_int;
+   
+     if (month_int < 10 && month_int > 0){
+    digit_array[0] = 0; // 10 will be the designation for not displaying anything
+    digit_array[1] = month_int;
+  }
+  else {
+    digit_array[0] = month_int/10;
+    digit_array[1] = month_int%10;
+  }
+  if (day_int < 10){
+  digit_array[2] = 0; // 10 will be the designation for not displaying anything
+  digit_array[3] = day_int;
+  }
+  else {
+    digit_array[2] = day_int/10;
+    digit_array[3] = day_int%10;
   }
 }
 
