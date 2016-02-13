@@ -59,13 +59,13 @@ void setup() {
     if (! RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
     // following line sets the RTC to the date & time this sketch was compiled
-    RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    //RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
     // This line sets the RTC with an explicit date & time, for example to set
     // January 21, 2014 at 3am you would call:
     //RTC.adjust(DateTime(2014, 1, 21, 3, 0, 0));
   }
 
-RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+//RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
                
   pinMode(pin_A, INPUT);
   pinMode(pin_B, INPUT);
