@@ -28,6 +28,10 @@ Check out the associated blog post here: [Count up Box - A Valentine's Day Gift]
 
 ## Requirements
 
+### Software
+
+I used the LiquidCrystal_I2C library, which you can obtain here: [LiquidCrystal I2C](https://github.com/marcoschwartz/LiquidCrystal_I2C)
+
 ### Hardware
 
 * Arduino Nano (or equivalent)
