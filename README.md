@@ -17,6 +17,10 @@ This is a project I created as a Valentine's day gift to my girlfriend. It count
 * Turn the knob to change the units being displayed or the current time and date.
 * When displaying current time or date, hold down the button for 3 seconds to edit. Hold down again to switch between hours and minutes.
 
+## Blog Post
+
+Check out the associated blog post here: [Count up Box - A Valentine's Day Gift](http://www.jeremyadamwilson.com/count-up-box/)
+
 ## Demo Video
 
 [Demo Video](https://youtu.be/PbRNsSK7r4M)

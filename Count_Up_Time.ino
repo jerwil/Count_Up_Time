@@ -113,70 +113,73 @@ void setup() {
 
 // the loop routine runs over and over again forever:
 void loop() {
-    clockwise = 0;
-    encoder_A = digitalRead(pin_A);    // Read encoder pins
-    encoder_B = digitalRead(pin_B);   
-    if((!encoder_A) && (encoder_A_prev)){
-      // A has gone from high to low 
-      if(encoder_B) {
-        Serial.println("Clockwise");
-        if (mode != 5.5 && mode != 6.5){mode += 1;}
-        // B is high so clockwise
-        clockwise = 1;
-        timeout = 0;            
-      }   
-      else {
-        Serial.println("Counter Clockwise");
-        if (mode != 5.5 && mode != 6.5){mode -= 1;} 
-        // B is low so counter-clockwise      
-        clockwise = -1;
-        timeout = 0;              
-      }   
-}
-encoder_A_prev = encoder_A;
-
-button_state = digitalRead(ButtonPin);
-button_pushed = button_press (button_state, button_press_initiate, button_press_completed);
-
-if (button_state == HIGH){
- button_hi = true;
- timeout = 0; 
-}
-else {button_hi = false;}
-
-if (button_pushed == 1){
-  if (LCDon){LCDon = false;}
-  else {LCDon = true;}
-}
+  clockwise = 0;
+  encoder_A = digitalRead(pin_A);    // Read encoder pins
+  encoder_B = digitalRead(pin_B);   
+  if((!encoder_A) && (encoder_A_prev)){
+    // A has gone from high to low 
+    if(encoder_B) {
+      Serial.println("Clockwise");
+      if (mode != 5.5 && mode != 6.5){mode += 1;}
+      // B is high so clockwise
+      clockwise = 1;
+      timeout = 0;            
+    }   
+    else {
+      Serial.println("Counter Clockwise");
+      if (mode != 5.5 && mode != 6.5){mode -= 1;} 
+      // B is low so counter-clockwise      
+      clockwise = -1;
+      timeout = 0;              
+    }   
+  }
+  encoder_A_prev = encoder_A;
+  
+  button_state = digitalRead(ButtonPin);
+  button_pushed = button_press (button_state, button_press_initiate, button_press_completed);
 
 
-if (mode < 0){mode = 6;}
-else if (mode >= 7){mode = 0;}
-
-    DateTime now = RTC.now();
-    DateTime aniv = (1422126000);
-
-month_int = now.month();
-day_int = now.day();
-year_int = now.year();
-hour_int = now.hour();
-minute_int = now.minute();
-second_int = now.second();
+  if (button_state == HIGH){
+   button_hi = true;
+   timeout = 0; 
+  }
+  else {button_hi = false;}
 
 
-    if (now.year() % 4 == 0){MonthDayCounts[1] = 29;}
-    else {MonthDayCounts[1] = 28;}
+// Toggle the backlight with a button press
+  if (button_pushed == 1){
+    if (LCDon){LCDon = false;}
+    else {LCDon = true;}
+  }
 
-    long SecondsSince = now.unixtime() - aniv.unixtime();
-    long MinutesSince = SecondsSince/60;
-    long HoursSince = MinutesSince/60;
-    long DaysSince = HoursSince/24;
-    long DaysOfMonthSince = MonthDayCounts[now.month()-2]- aniv.day() + now.day();
-    long MonthsSince = (now.year()-aniv.year())*12+(now.month()-aniv.month()-1);
-    if (now.day() >= aniv.day()){
-    MonthsSince += 1;
-    DaysOfMonthSince = now.day()- aniv.day();
-    }
+
+  if (mode < 0){mode = 6;}
+  else if (mode >= 7){mode = 0;}
+
+DateTime now = RTC.now();
+DateTime aniv = (1422126000); // The unixtime format of our anniversary date
+
+  month_int = now.month();
+  day_int = now.day();
+  year_int = now.year();
+  hour_int = now.hour();
+  minute_int = now.minute();
+  second_int = now.second();
+
+
+  if (now.year() % 4 == 0){MonthDayCounts[1] = 29;}
+  else {MonthDayCounts[1] = 28;}
+
+  long SecondsSince = now.unixtime() - aniv.unixtime();
+  long MinutesSince = SecondsSince/60;
+  long HoursSince = MinutesSince/60;
+  long DaysSince = HoursSince/24;
+  long DaysOfMonthSince = MonthDayCounts[now.month()-2]- aniv.day() + now.day();
+  long MonthsSince = (now.year()-aniv.year())*12+(now.month()-aniv.month()-1);
+  if (now.day() >= aniv.day()){
+  MonthsSince += 1;
+  DaysOfMonthSince = now.day()- aniv.day();
+  }
   
     
     
@@ -225,7 +228,7 @@ second_int = now.second();
   else if (mode == 5.5){
     lcd.cursor();    
     if (tick(1000, second_timer) == 1){  
-      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set alarm
+      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set time
       button_counter += 1;
       }
       else {
@@ -287,7 +290,7 @@ second_int = now.second();
   }
   else if (mode == 6){
     if (tick(1000, second_timer) == 1){  
-      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set alarm
+      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set date
         if (button_counter >= 3) {
         mode = 6.5;
         button_counter = 0;
