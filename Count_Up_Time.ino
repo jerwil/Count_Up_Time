@@ -32,7 +32,7 @@ const int pin_A = 6;  // pin 12
 const int pin_B = 7;  // pin 11
 const int ButtonPin = 8;
 
-int MonthDayCounts[12] = {31,28,31,30,31,30,31,31,30,31,30,31};
+int MonthDayCounts[12] = {31,28,31,30,31,30,31,31,30,31,30,31}; // The number of days in each month
 
 
 // Variables for the rotary encodier
@@ -80,6 +80,7 @@ double second_timer[1] = {0}; // This is used to keep track of the timer used to
 int old_second = 0; //This is used for the tick mechanism
 int now_second = 0;
 unsigned long currentTime;
+int cursor_blink = 0;
 
 // the setup routine runs once when you press reset:
 void setup() {
@@ -205,8 +206,8 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
   }
   else if (mode == 5){
     if (tick(1000, second_timer) == 1){  
-      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set alarm
-        if (button_counter >= 2) {
+      if (button_hi == true){ 
+        if (button_counter >= 2) { // This code checks to see if the button has been held down long enough to set time
         mode = 5.5;
         button_counter = 0;
         button_pushed = 0;
@@ -225,17 +226,24 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
     printstring1(stringOne);
     printstring2("The time");
   }
-  else if (mode == 5.5){
-    lcd.cursor();    
+  else if (mode == 5.5){ 
     if (tick(1000, second_timer) == 1){  
-      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set time
+      if (button_hi == true){ 
       button_counter += 1;
       }
       else {
          button_counter = 0; 
          timeout += 1;
       }
-    }
+      if (cursor_blink == 0){
+        cursor_blink = 1;
+        lcd.cursor();
+      }
+      else if (cursor_blink == 1){
+        cursor_blink = 0;
+        lcd.noCursor();
+      }
+      }
     if (timeout >= 60){
       mode = 5;
       timeout = 0;
@@ -249,7 +257,7 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
     else if (clockwise == -1 && time_array[0] > 0){
       time_array[0] -= 1;
     }
-    if (button_counter >= 2) {
+    if (button_counter >= 2) { // This code checks to see if the button has been held down long enough to change to setting minutes
       sub_mode = "minute set";
       button_counter = 0;
       button_pushed = 0;
@@ -310,9 +318,8 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
     printstring2("The Date");
   }
   else if (mode == 6.5){
-    lcd.cursor();
     if (tick(1000, second_timer) == 1){  
-      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set alarm
+      if (button_hi == true){ // This code checks to see if the button has been held down long enough to set date
         if (button_counter >= 3) {
         mode = 6;
         button_counter = 0;
@@ -326,6 +333,14 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
          button_counter = 0; 
          timeout += 1;
       }
+      if (cursor_blink == 0){
+        cursor_blink = 1;
+        lcd.cursor();
+      }
+      else if (cursor_blink == 1){
+        cursor_blink = 0;
+        lcd.noCursor();
+      }      
     }
     if (timeout >= 60){
       mode = 6;
@@ -336,7 +351,7 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
     if (clockwise == 1 && time_array[0] < 12){
       time_array[0] += 1;
       }
-    else if (clockwise == -1 && time_array[0] > 0){
+    else if (clockwise == -1 && time_array[0] > 1){
       time_array[0] -= 1;
     }
     if (button_counter >= 2) {
@@ -349,11 +364,11 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
     }
     else if (sub_mode == "day set"){
       lcd.setCursor(4,0);
-      if (clockwise == 1 && time_array[1] < 31){ // Replace with logic that checks months array
-        time_array[0] += 1;
+      if (clockwise == 1 && time_array[1] < MonthDayCounts[time_array[0]-1]){ // Don't allow a day not within current month. This is why month is set first!
+        time_array[1] += 1;
         }
-      else if (clockwise == -1 && time_array[1] > 0){
-        time_array[0] -= 1;
+      else if (clockwise == -1 && time_array[1] > 1){
+        time_array[1] -= 1;
       }
       if (button_counter >= 2) {
         sub_mode = "year set";
@@ -368,18 +383,18 @@ DateTime aniv = (1422126000); // The unixtime format of our anniversary date
     if (clockwise == 1){
       time_array[2] += 1;
       }
-    else if (clockwise == -1 && time_array[2] > 0){
+    else if (clockwise == -1 && time_array[2] > 1971){
       time_array[2] -= 1;
     }
     if (button_counter >= 2) {
-      mode = 5;
+      mode = 6;
       sub_mode = "hour set";
       button_counter = 0;
       button_pushed = 0;
       timeout = 0;
       button_press_initiate[0] = 0;
       lcd.noCursor();
-  //    RTC.adjust(DateTime(now.year(), now.month(), now.day(), time_array[0], time_array[1], now.second())); 
+      RTC.adjust(DateTime(time_array[2], time_array[0], time_array[1], now.hour(), now.minute(), now.second())); 
     }    
     }
     date_to_array(time_array[0], time_array[1], time_array[2]);
