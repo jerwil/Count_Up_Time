@@ -2,8 +2,7 @@
 
 This is a project I created as a Valentine's day gift to my girlfriend. It counts up the amount of time we have been together as a couple in various units.
 
-![] (https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Front.JPG "Front View")
-![] (https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Back.JPG "Back View")
+![Front View](https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Front.JPG)
 
 ## Features
 
@@ -45,13 +44,13 @@ I used the LiquidCrystal_I2C library, which you can obtain here: [LiquidCrystal 
 * Battery holder
 * Body/housing (lasercut design included in repository)
 
-![] (https://github.com/jerwil/Count_Up_Time/raw/master/Photos/IMG_2618.JPG "Circuit board picture")
-![] (https://github.com/jerwil/Count_Up_Time/raw/master/Photos/IMG_2620.JPG "View inside box")
+![Circuit board picture](https://github.com/jerwil/Count_Up_Time/raw/master/Photos/IMG_2618.JPG)
+![View inside box](https://github.com/jerwil/Count_Up_Time/raw/master/Photos/IMG_2620.JPG)
 
 ### Schematics
 
-![] (https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Count%20Up%20Box%20Schematic%20Production_pcb.png "Circuit Board Layout")
-![] (https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Rotary%20Encoder%20Mini%20Board_pcb.png "Rotary Encoder Board")
+![Circuit Board Layout](https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Count%20Up%20Box%20Schematic%20Production_pcb.png)
+![Rotary Encoder Board](https://github.com/jerwil/Count_Up_Time/raw/master/Photos/Rotary%20Encoder%20Mini%20Board_pcb.png)
 
 See the included Fritzing diagram (.fzz file) for details.
 
